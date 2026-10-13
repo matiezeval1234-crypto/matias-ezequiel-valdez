@@ -1,4 +1,4 @@
-name: Auto-Generar Proyecto y Compilar APK
+name: Compilar APK Cliente VPN
 
 on:
   push:
@@ -12,13 +12,16 @@ jobs:
       - name: Descargar repositorio
         uses: actions/checkout@v4
 
-      - name: Generar todos los archivos del proyecto Android automaticamente
+      - name: Crear estructura del proyecto con Python
+        shell: python
         run: |
-          mkdir -p app/src/main/java/com/mativaldez/vpnclient
-          mkdir -p app/src/main/res/layout
+          import os
 
-          cat << 'EOF' > settings.gradle
-          pluginManagement {
+          os.makedirs("app/src/main/java/com/mativaldez/vpnclient", exist_ok=True)
+          os.makedirs("app/src/main/res/layout", exist_ok=True)
+
+          files = {
+              "settings.gradle": """pluginManagement {
               repositories {
                   google()
                   mavenCentral()
@@ -34,22 +37,16 @@ jobs:
           }
           rootProject.name = "CustomVpnClient"
           include ':app'
-          EOF
-
-          cat << 'EOF' > build.gradle
-          plugins {
+          """,
+              "build.gradle": """plugins {
               id 'com.android.application' version '8.2.0' apply false
               id 'org.jetbrains.kotlin.android' version '1.9.20' apply false
           }
-          EOF
-
-          cat << 'EOF' > gradle.properties
-          android.useAndroidX=true
+          """,
+              "gradle.properties": """android.useAndroidX=true
           org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
-          EOF
-
-          cat << 'EOF' > app/build.gradle
-          plugins {
+          """,
+              "app/build.gradle": """plugins {
               id 'com.android.application'
               id 'org.jetbrains.kotlin.android'
           }
@@ -87,10 +84,8 @@ jobs:
               implementation 'androidx.security:security-crypto:1.1.0-alpha06'
               implementation 'com.jcraft:jsch:0.1.55'
           }
-          EOF
-
-          cat << 'EOF' > app/src/main/AndroidManifest.xml
-          <?xml version="1.0" encoding="utf-8"?>
+          """,
+              "app/src/main/AndroidManifest.xml": """<?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android"
               package="com.mativaldez.vpnclient">
 
@@ -132,10 +127,8 @@ jobs:
                   </service>
               </application>
           </manifest>
-          EOF
-
-          cat << 'EOF' > app/src/main/res/layout/activity_main.xml
-          <?xml version="1.0" encoding="utf-8"?>
+          """,
+              "app/src/main/res/layout/activity_main.xml": """<?xml version="1.0" encoding="utf-8"?>
           <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
@@ -302,10 +295,8 @@ jobs:
 
               </LinearLayout>
           </ScrollView>
-          EOF
-
-          cat << 'EOF' > app/src/main/java/com/mativaldez/vpnclient/ConfigStorage.kt
-          package com.mativaldez.vpnclient
+          """,
+              "app/src/main/java/com/mativaldez/vpnclient/ConfigStorage.kt": """package com.mativaldez.vpnclient
 
           import android.content.Context
           import android.net.Uri
@@ -399,10 +390,8 @@ jobs:
                   return String(cipher.doFinal(decoded), Charsets.UTF_8)
               }
           }
-          EOF
-
-          cat << 'EOF' > app/src/main/java/com/mativaldez/vpnclient/MainActivity.kt
-          package com.mativaldez.vpnclient
+          """,
+              "app/src/main/java/com/mativaldez/vpnclient/MainActivity.kt": """package com.mativaldez.vpnclient
 
           import android.annotation.SuppressLint
           import android.content.BroadcastReceiver
@@ -595,10 +584,8 @@ jobs:
                   unregisterReceiver(statusReceiver)
               }
           }
-          EOF
-
-          cat << 'EOF' > app/src/main/java/com/mativaldez/vpnclient/TunnelVpnService.kt
-          package com.mativaldez.vpnclient
+          """,
+              "app/src/main/java/com/mativaldez/vpnclient/TunnelVpnService.kt": """package com.mativaldez.vpnclient
 
           import android.app.Notification
           import android.app.NotificationChannel
@@ -756,8 +743,8 @@ jobs:
                       if (rawCustomHeader.isNotEmpty()) {
                           val formatted = rawCustomHeader
                               .replace("[host_port]", "$host:$port")
-                              .replace("[crlf]", "\r\n")
-                              .replace("[lf]", "\n")
+                              .replace("[crlf]", "\\r\\n")
+                              .replace("[lf]", "\\n")
 
                           val blocks = formatted.split("[split]")
                           for (block in blocks) {
@@ -837,7 +824,13 @@ jobs:
                   super.onDestroy()
               }
           }
-          EOF
+          """
+          }
+
+          for path, content in files.items():
+              lines = [line[10:] if line.startswith("          ") else line for line in content.splitlines()]
+              with open(path, "w", encoding="utf-8") as f:
+                  f.write("\n".join(lines))
 
       - name: Configurar Java JDK 17
         uses: actions/setup-java@v4
