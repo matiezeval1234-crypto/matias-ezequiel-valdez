@@ -15,822 +15,829 @@ jobs:
       - name: Crear estructura del proyecto con Python
         shell: python
         run: |
-          import os
+          import os, textwrap
 
           os.makedirs("app/src/main/java/com/mativaldez/vpnclient", exist_ok=True)
           os.makedirs("app/src/main/res/layout", exist_ok=True)
 
           files = {
-              "settings.gradle": """pluginManagement {
-              repositories {
-                  google()
-                  mavenCentral()
-                  gradlePluginPortal()
-              }
-          }
-          dependencyResolutionManagement {
-              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-              repositories {
-                  google()
-                  mavenCentral()
-              }
-          }
-          rootProject.name = "CustomVpnClient"
-          include ':app'
-          """,
-              "build.gradle": """plugins {
-              id 'com.android.application' version '8.2.0' apply false
-              id 'org.jetbrains.kotlin.android' version '1.9.20' apply false
-          }
-          """,
-              "gradle.properties": """android.useAndroidX=true
-          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
-          """,
-              "app/build.gradle": """plugins {
-              id 'com.android.application'
-              id 'org.jetbrains.kotlin.android'
-          }
-
-          android {
-              namespace 'com.mativaldez.vpnclient'
-              compileSdk 34
-
-              defaultConfig {
-                  applicationId "com.mativaldez.vpnclient"
-                  minSdk 24
-                  targetSdk 34
-                  versionCode 1
-                  versionName "1.0"
-              }
-
-              buildTypes {
-                  release {
-                      minifyEnabled false
+              "settings.gradle": """
+                  pluginManagement {
+                      repositories {
+                          google()
+                          mavenCentral()
+                          gradlePluginPortal()
+                      }
                   }
-              }
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_17
-                  targetCompatibility JavaVersion.VERSION_17
-              }
-              kotlinOptions {
-                  jvmTarget = '17'
-              }
-          }
+                  dependencyResolutionManagement {
+                      repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+                      repositories {
+                          google()
+                          mavenCentral()
+                      }
+                  }
+                  rootProject.name = "CustomVpnClient"
+                  include ':app'
+              """,
+              "build.gradle": """
+                  plugins {
+                      id 'com.android.application' version '8.2.0' apply false
+                      id 'org.jetbrains.kotlin.android' version '1.9.20' apply false
+                  }
+              """,
+              "gradle.properties": """
+                  android.useAndroidX=true
+                  org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+              """,
+              "app/build.gradle": """
+                  plugins {
+                      id 'com.android.application'
+                      id 'org.jetbrains.kotlin.android'
+                  }
 
-          dependencies {
-              implementation 'androidx.core:core-ktx:1.12.0'
-              implementation 'androidx.appcompat:appcompat:1.6.1'
-              implementation 'com.google.android.material:material:1.11.0'
-              implementation 'androidx.security:security-crypto:1.1.0-alpha06'
-              implementation 'com.jcraft:jsch:0.1.55'
-          }
-          """,
-              "app/src/main/AndroidManifest.xml": """<?xml version="1.0" encoding="utf-8"?>
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-              package="com.mativaldez.vpnclient">
+                  android {
+                      namespace 'com.mativaldez.vpnclient'
+                      compileSdk 34
 
-              <uses-permission android:name="android.permission.INTERNET" />
-              <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-              <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-              <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-              <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-              <uses-permission android:name="android.permission.WAKE_LOCK" />
-              <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+                      defaultConfig {
+                          applicationId "com.mativaldez.vpnclient"
+                          minSdk 24
+                          targetSdk 34
+                          versionCode 1
+                          versionName "1.0"
+                      }
 
-              <application
-                  android:allowBackup="false"
-                  android:label="MV Conexion Segura"
-                  android:supportsRtl="true"
-                  android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
+                      buildTypes {
+                          release {
+                              minifyEnabled false
+                          }
+                      }
+                      compileOptions {
+                          sourceCompatibility JavaVersion.VERSION_17
+                          targetCompatibility JavaVersion.VERSION_17
+                      }
+                      kotlinOptions {
+                          jvmTarget = '17'
+                      }
+                  }
 
-                  <activity
-                      android:name=".MainActivity"
-                      android:exported="true"
-                      android:screenOrientation="portrait">
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN" />
-                          <category android:name="android.intent.category.LAUNCHER" />
-                      </intent-filter>
-                  </activity>
+                  dependencies {
+                      implementation 'androidx.core:core-ktx:1.12.0'
+                      implementation 'androidx.appcompat:appcompat:1.6.1'
+                      implementation 'com.google.android.material:material:1.11.0'
+                      implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+                      implementation 'com.jcraft:jsch:0.1.55'
+                  }
+              """,
+              "app/src/main/AndroidManifest.xml": """
+                  <?xml version="1.0" encoding="utf-8"?>
+                  <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-                  <service
-                      android:name=".TunnelVpnService"
-                      android:exported="false"
-                      android:permission="android.permission.BIND_VPN_SERVICE"
-                      android:foregroundServiceType="specialUse">
-                      <intent-filter>
-                          <action android:name="android.net.VpnService" />
-                      </intent-filter>
-                      <property
-                          android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                          android:value="vpn_tunnel_persistence" />
-                  </service>
-              </application>
-          </manifest>
-          """,
-              "app/src/main/res/layout/activity_main.xml": """<?xml version="1.0" encoding="utf-8"?>
-          <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="#0F172A"
-              android:fillViewport="true">
+                      <uses-permission android:name="android.permission.INTERNET" />
+                      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+                      <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+                      <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+                      <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+                      <uses-permission android:name="android.permission.WAKE_LOCK" />
+                      <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
-              <LinearLayout
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="vertical"
-                  android:padding="24dp"
-                  android:gravity="center_horizontal">
+                      <application
+                          android:allowBackup="false"
+                          android:label="MV Conexion Segura"
+                          android:supportsRtl="true"
+                          android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
 
-                  <TextView
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="CONEXION PRIVADA"
-                      android:textColor="#38BDF8"
-                      android:textSize="22sp"
-                      android:textStyle="bold"
-                      android:layout_marginTop="16dp" />
+                          <activity
+                              android:name=".MainActivity"
+                              android:exported="true"
+                              android:screenOrientation="portrait">
+                              <intent-filter>
+                                  <action android:name="android.intent.action.MAIN" />
+                                  <category android:name="android.intent.category.LAUNCHER" />
+                              </intent-filter>
+                          </activity>
 
-                  <TextView
-                      android:id="@+id/tvConfigStatus"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:text="Sin archivo de configuracion cargado"
-                      android:textColor="#94A3B8"
-                      android:textSize="13sp"
-                      android:layout_marginTop="6dp"
-                      android:layout_marginBottom="16dp" />
-
-                  <com.google.android.material.button.MaterialButton
-                      android:id="@+id/btnImportConfig"
-                      style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                          <service
+                              android:name=".TunnelVpnService"
+                              android:exported="false"
+                              android:permission="android.permission.BIND_VPN_SERVICE"
+                              android:foregroundServiceType="specialUse">
+                              <intent-filter>
+                                  <action android:name="android.net.VpnService" />
+                              </intent-filter>
+                              <property
+                                  android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                                  android:value="vpn_tunnel_persistence" />
+                          </service>
+                      </application>
+                  </manifest>
+              """,
+              "app/src/main/res/layout/activity_main.xml": """
+                  <?xml version="1.0" encoding="utf-8"?>
+                  <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+                      xmlns:app="http://schemas.android.com/apk/res-auto"
                       android:layout_width="match_parent"
-                      android:layout_height="52dp"
-                      android:text="CARGAR ARCHIVO (.VCFG)"
-                      android:textColor="#38BDF8"
-                      app:strokeColor="#38BDF8"
-                      app:cornerRadius="10dp" />
+                      android:layout_height="match_parent"
+                      android:background="#0F172A"
+                      android:fillViewport="true">
 
-                  <TextView
-                      android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:text="1. Selecciona tu perfil:"
-                      android:textColor="#E2E8F0"
-                      android:textSize="14sp"
-                      android:layout_marginTop="24dp"
-                      android:layout_marginBottom="8dp" />
-
-                  <RadioGroup
-                      android:id="@+id/rgCarrier"
-                      android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:orientation="horizontal"
-                      android:weightSum="2">
-
-                      <RadioButton
-                          android:id="@+id/rbPersonal"
-                          android:layout_width="0dp"
-                          android:layout_height="50dp"
-                          android:layout_weight="1"
-                          android:checked="true"
-                          android:text="PERSONAL"
-                          android:textColor="#FFFFFF"
-                          android:textStyle="bold"
-                          android:buttonTint="#38BDF8"
-                          android:background="#1E293B"
-                          android:padding="10dp"
-                          android:layout_marginEnd="6dp" />
-
-                      <RadioButton
-                          android:id="@+id/rbClaro"
-                          android:layout_width="0dp"
-                          android:layout_height="50dp"
-                          android:layout_weight="1"
-                          android:text="CLARO"
-                          android:textColor="#FFFFFF"
-                          android:textStyle="bold"
-                          android:buttonTint="#EF4444"
-                          android:background="#1E293B"
-                          android:padding="10dp"
-                          android:layout_marginStart="6dp" />
-                  </RadioGroup>
-
-                  <TextView
-                      android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:text="2. Ingresa tu cuenta:"
-                      android:textColor="#E2E8F0"
-                      android:textSize="14sp"
-                      android:layout_marginTop="24dp"
-                      android:layout_marginBottom="8dp" />
-
-                  <com.google.android.material.textfield.TextInputLayout
-                      android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:hint="Usuario"
-                      app:boxBackgroundColor="#1E293B"
-                      app:boxBackgroundMode="filled"
-                      app:hintTextColor="#38BDF8"
-                      android:textColorHint="#94A3B8">
-
-                      <com.google.android.material.textfield.TextInputEditText
-                          android:id="@+id/etUsername"
+                      <LinearLayout
                           android:layout_width="match_parent"
                           android:layout_height="wrap_content"
-                          android:inputType="textNoSuggestions"
-                          android:textColor="#FFFFFF" />
-                  </com.google.android.material.textfield.TextInputLayout>
-
-                  <com.google.android.material.textfield.TextInputLayout
-                      android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:layout_marginTop="12dp"
-                      android:hint="Contrasena"
-                      app:boxBackgroundColor="#1E293B"
-                      app:boxBackgroundMode="filled"
-                      app:endIconMode="password_toggle"
-                      app:endIconTint="#94A3B8"
-                      app:hintTextColor="#38BDF8"
-                      android:textColorHint="#94A3B8">
-
-                      <com.google.android.material.textfield.TextInputEditText
-                          android:id="@+id/etPassword"
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:inputType="textPassword"
-                          android:textColor="#FFFFFF" />
-                  </com.google.android.material.textfield.TextInputLayout>
-
-                  <CheckBox
-                      android:id="@+id/cbRemember"
-                      android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:layout_marginTop="8dp"
-                      android:checked="true"
-                      android:text="Guardar usuario y contrasena"
-                      android:textColor="#CBD5E1"
-                      android:buttonTint="#38BDF8" />
-
-                  <com.google.android.material.button.MaterialButton
-                      android:id="@+id/btnConnect"
-                      android:layout_width="match_parent"
-                      android:layout_height="64dp"
-                      android:layout_marginTop="24dp"
-                      android:text="CONECTAR"
-                      android:textSize="18sp"
-                      android:textStyle="bold"
-                      app:backgroundTint="#10B981"
-                      app:cornerRadius="14dp" />
-
-                  <TextView
-                      android:id="@+id/tvConnectionState"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:layout_marginTop="20dp"
-                      android:text="Estado: Desconectado"
-                      android:textColor="#94A3B8"
-                      android:textSize="15sp"
-                      android:textStyle="bold" />
-
-              </LinearLayout>
-          </ScrollView>
-          """,
-              "app/src/main/java/com/mativaldez/vpnclient/ConfigStorage.kt": """package com.mativaldez.vpnclient
-
-          import android.content.Context
-          import android.net.Uri
-          import android.util.Base64
-          import androidx.security.crypto.EncryptedSharedPreferences
-          import androidx.security.crypto.MasterKey
-          import org.json.JSONObject
-          import java.io.BufferedReader
-          import java.io.InputStreamReader
-          import javax.crypto.Cipher
-          import javax.crypto.spec.IvParameterSpec
-          import javax.crypto.spec.SecretKeySpec
-
-          data class CarrierProfile(
-              val proxy: String,
-              val ssh: String,
-              val customHeader: String
-          )
-
-          object ConfigStorage {
-              private const val SECRET_KEY = "MatiValdezVpnKey2026Segura123456"
-              private const val INIT_VECTOR = "VectorInicial123"
-
-              private fun getPrefs(context: Context) = EncryptedSharedPreferences.create(
-                  context,
-                  "vpn_secure_prefs",
-                  MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
-                  EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-                  EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-              )
-
-              fun importAndSaveConfig(context: Context, uri: Uri): Boolean {
-                  return try {
-                      val inputStream = context.contentResolver.openInputStream(uri) ?: return false
-                      val encryptedBase64 = BufferedReader(InputStreamReader(inputStream)).use { it.readText().trim() }
-                      val decryptedJson = decryptAes(encryptedBase64)
-
-                      val obj = JSONObject(decryptedJson)
-                      if (!obj.has("personal") || !obj.has("claro")) return false
-
-                      getPrefs(context).edit().putString("raw_config_json", decryptedJson).apply()
-                      true
-                  } catch (e: Exception) {
-                      false
-                  }
-              }
-
-              fun hasConfigLoaded(context: Context): Boolean {
-                  return !getPrefs(context).getString("raw_config_json", null).isNullOrEmpty()
-              }
-
-              fun getProfile(context: Context, carrierKey: String): CarrierProfile? {
-                  val rawJson = getPrefs(context).getString("raw_config_json", null) ?: return null
-                  return try {
-                      val carrierObj = JSONObject(rawJson).getJSONObject(carrierKey)
-                      CarrierProfile(
-                          proxy = carrierObj.optString("proxy", ""),
-                          ssh = carrierObj.optString("ssh", ""),
-                          customHeader = carrierObj.optString("customHeader", "")
-                      )
-                  } catch (e: Exception) {
-                      null
-                  }
-              }
-
-              fun saveCredentials(context: Context, user: String, pass: String, carrier: String, remember: Boolean) {
-                  val editor = getPrefs(context).edit()
-                  editor.putString("selected_carrier", carrier)
-                  editor.putBoolean("remember", remember)
-                  if (remember) {
-                      editor.putString("username", user)
-                      editor.putString("password", pass)
-                  } else {
-                      editor.remove("username")
-                      editor.remove("password")
-                  }
-                  editor.apply()
-              }
-
-              fun getSavedUsername(context: Context): String = getPrefs(context).getString("username", "") ?: ""
-              fun getSavedPassword(context: Context): String = getPrefs(context).getString("password", "") ?: ""
-              fun getSavedCarrier(context: Context): String = getPrefs(context).getString("selected_carrier", "personal") ?: "personal"
-              fun isRememberEnabled(context: Context): Boolean = getPrefs(context).getBoolean("remember", true)
-
-              private fun decryptAes(encryptedBase64: String): String {
-                  val iv = IvParameterSpec(INIT_VECTOR.toByteArray(Charsets.UTF_8))
-                  val keySpec = SecretKeySpec(SECRET_KEY.toByteArray(Charsets.UTF_8), "AES")
-                  val cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING")
-                  cipher.init(Cipher.DECRYPT_MODE, keySpec, iv)
-                  val decoded = Base64.decode(encryptedBase64, Base64.DEFAULT)
-                  return String(cipher.doFinal(decoded), Charsets.UTF_8)
-              }
-          }
-          """,
-              "app/src/main/java/com/mativaldez/vpnclient/MainActivity.kt": """package com.mativaldez.vpnclient
-
-          import android.annotation.SuppressLint
-          import android.content.BroadcastReceiver
-          import android.content.Context
-          import android.content.Intent
-          import android.content.IntentFilter
-          import android.graphics.Color
-          import android.net.Uri
-          import android.net.VpnService
-          import android.os.Build
-          import android.os.Bundle
-          import android.os.PowerManager
-          import android.provider.Settings
-          import android.widget.*
-          import androidx.activity.result.contract.ActivityResultContracts
-          import androidx.appcompat.app.AppCompatActivity
-          import com.google.android.material.button.MaterialButton
-          import com.google.android.material.textfield.TextInputEditText
-
-          class MainActivity : AppCompatActivity() {
-
-              private lateinit var tvConfigStatus: TextView
-              private lateinit var tvConnectionState: TextView
-              private lateinit var btnConnect: MaterialButton
-              private lateinit var etUsername: TextInputEditText
-              private lateinit var etPassword: TextInputEditText
-              private lateinit var cbRemember: CheckBox
-              private lateinit var rgCarrier: RadioGroup
-              private var isConnected = false
-
-              private val filePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-                  if (uri != null) {
-                      val ok = ConfigStorage.importAndSaveConfig(this, uri)
-                      if (ok) {
-                          updateConfigLabel()
-                          Toast.makeText(this, "Configuracion cargada con exito", Toast.LENGTH_SHORT).show()
-                      } else {
-                          Toast.makeText(this, "Archivo invalido o danado", Toast.LENGTH_LONG).show()
-                      }
-                  }
-              }
-
-              private val vpnPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                  if (result.resultCode == RESULT_OK) {
-                      startTunnelService()
-                  } else {
-                      Toast.makeText(this, "Permiso VPN necesario para conectar", Toast.LENGTH_SHORT).show()
-                  }
-              }
-
-              private val statusReceiver = object : BroadcastReceiver() {
-                  override fun onReceive(context: Context?, intent: Intent?) {
-                      val state = intent?.getStringExtra("STATE") ?: return
-                      val detail = intent.getStringExtra("DETAIL") ?: ""
-                      tvConnectionState.text = "Estado: $detail"
-
-                      when (state) {
-                          "CONNECTED" -> {
-                              isConnected = true
-                              btnConnect.text = "DESCONECTAR"
-                              btnConnect.setBackgroundColor(Color.parseColor("#EF4444"))
-                              tvConnectionState.setTextColor(Color.parseColor("#10B981"))
-                          }
-                          "CONNECTING" -> {
-                              btnConnect.text = "CANCELAR"
-                              btnConnect.setBackgroundColor(Color.parseColor("#F59E0B"))
-                              tvConnectionState.setTextColor(Color.parseColor("#F59E0B"))
-                          }
-                          "DISCONNECTED" -> {
-                              isConnected = false
-                              btnConnect.text = "CONECTAR"
-                              btnConnect.setBackgroundColor(Color.parseColor("#10B981"))
-                              tvConnectionState.setTextColor(Color.parseColor("#94A3B8"))
-                          }
-                      }
-                  }
-              }
-
-              @SuppressLint("BatteryLife")
-              override fun onCreate(savedInstanceState: Bundle?) {
-                  super.onCreate(savedInstanceState)
-                  setContentView(R.layout.activity_main)
-
-                  tvConfigStatus = findViewById(R.id.tvConfigStatus)
-                  tvConnectionState = findViewById(R.id.tvConnectionState)
-                  btnConnect = findViewById(R.id.btnConnect)
-                  etUsername = findViewById(R.id.etUsername)
-                  etPassword = findViewById(R.id.etPassword)
-                  cbRemember = findViewById(R.id.cbRemember)
-                  rgCarrier = findViewById(R.id.rgCarrier)
-
-                  val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-                  if (!pm.isIgnoringBatteryOptimizations(packageName)) {
-                      val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                          data = Uri.parse("package:$packageName")
-                      }
-                      startActivity(intent)
-                  }
-
-                  etUsername.setText(ConfigStorage.getSavedUsername(this))
-                  etPassword.setText(ConfigStorage.getSavedPassword(this))
-                  cbRemember.isChecked = ConfigStorage.isRememberEnabled(this)
-                  if (ConfigStorage.getSavedCarrier(this) == "claro") {
-                      rgCarrier.check(R.id.rbClaro)
-                  } else {
-                      rgCarrier.check(R.id.rbPersonal)
-                  }
-                  updateConfigLabel()
-
-                  findViewById<MaterialButton>(R.id.btnImportConfig).setOnClickListener {
-                      filePickerLauncher.launch("*/*")
-                  }
-
-                  btnConnect.setOnClickListener {
-                      if (isConnected) {
-                          stopTunnelService()
-                      } else {
-                          validateAndConnect()
-                      }
-                  }
-              }
-
-              private fun updateConfigLabel() {
-                  if (ConfigStorage.hasConfigLoaded(this)) {
-                      tvConfigStatus.text = "Perfiles Personal y Claro listos"
-                      tvConfigStatus.setTextColor(Color.parseColor("#10B981"))
-                  } else {
-                      tvConfigStatus.text = "Sin archivo de configuracion (.vcfg)"
-                      tvConfigStatus.setTextColor(Color.parseColor("#F59E0B"))
-                  }
-              }
-
-              private fun validateAndConnect() {
-                  if (!ConfigStorage.hasConfigLoaded(this)) {
-                      Toast.makeText(this, "Primero carga el archivo .vcfg", Toast.LENGTH_LONG).show()
-                      return
-                  }
-                  val user = etUsername.text?.toString()?.trim() ?: ""
-                  val pass = etPassword.text?.toString()?.trim() ?: ""
-                  if (user.isEmpty() || pass.isEmpty()) {
-                      Toast.makeText(this, "Ingresa tu usuario y contrasena", Toast.LENGTH_SHORT).show()
-                      return
-                  }
-
-                  val selectedCarrier = if (rgCarrier.checkedRadioButtonId == R.id.rbClaro) "claro" else "personal"
-                  ConfigStorage.saveCredentials(this, user, pass, selectedCarrier, cbRemember.isChecked)
-
-                  val vpnIntent = VpnService.prepare(this)
-                  if (vpnIntent != null) {
-                      vpnPermissionLauncher.launch(vpnIntent)
-                  } else {
-                      startTunnelService()
-                  }
-              }
-
-              private fun startTunnelService() {
-                  val selectedCarrier = if (rgCarrier.checkedRadioButtonId == R.id.rbClaro) "claro" else "personal"
-                  val intent = Intent(this, TunnelVpnService::class.java).apply {
-                      action = "ACTION_CONNECT"
-                      putExtra("CARRIER", selectedCarrier)
-                      putExtra("USER", etUsername.text.toString().trim())
-                      putExtra("PASS", etPassword.text.toString().trim())
-                  }
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                      startForegroundService(intent)
-                  } else {
-                      startService(intent)
-                  }
-              }
-
-              private fun stopTunnelService() {
-                  val intent = Intent(this, TunnelVpnService::class.java).apply {
-                      action = "ACTION_DISCONNECT"
-                  }
-                  startService(intent)
-              }
-
-              override fun onResume() {
-                  super.onResume()
-                  val filter = IntentFilter("VPN_STATE_UPDATE")
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                      registerReceiver(statusReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
-                  } else {
-                      registerReceiver(statusReceiver, filter)
-                  }
-              }
-
-              override fun onPause() {
-                  super.onPause()
-                  unregisterReceiver(statusReceiver)
-              }
-          }
-          """,
-              "app/src/main/java/com/mativaldez/vpnclient/TunnelVpnService.kt": """package com.mativaldez.vpnclient
-
-          import android.app.Notification
-          import android.app.NotificationChannel
-          import android.app.NotificationManager
-          import android.app.PendingIntent
-          import android.content.Context
-          import android.content.Intent
-          import android.net.VpnService
-          import android.os.Build
-          import android.os.ParcelFileDescriptor
-          import android.os.PowerManager
-          import androidx.core.app.NotificationCompat
-          import com.jcraft.jsch.JSch
-          import com.jcraft.jsch.Proxy
-          import com.jcraft.jsch.Session
-          import com.jcraft.jsch.SocketFactory
-          import java.io.InputStream
-          import java.io.OutputStream
-          import java.net.InetSocketAddress
-          import java.net.Socket
-          import java.util.Properties
-          import java.util.concurrent.atomic.AtomicBoolean
-
-          class TunnelVpnService : VpnService() {
-
-              private var vpnInterface: ParcelFileDescriptor? = null
-              private var sshSession: Session? = null
-              private var wakeLock: PowerManager.WakeLock? = null
-              private val isRunning = AtomicBoolean(false)
-              private var workerThread: Thread? = null
-
-              override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-                  when (intent?.action) {
-                      "ACTION_CONNECT" -> {
-                          val carrier = intent.getStringExtra("CARRIER") ?: "personal"
-                          val user = intent.getStringExtra("USER") ?: ""
-                          val pass = intent.getStringExtra("PASS") ?: ""
-                          startForeground(1, buildNotification("Conectando a ${carrier.uppercase()}..."))
-                          acquireWakeLock()
-                          startConnectionLoop(carrier, user, pass)
-                      }
-                      "ACTION_DISCONNECT" -> {
-                          stopTunnel()
-                          stopSelf()
-                      }
-                  }
-                  return START_STICKY
-              }
-
-              private fun acquireWakeLock() {
-                  if (wakeLock == null) {
-                      val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
-                      wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MVVpn::TunnelWakeLock")
-                      wakeLock?.acquire()
-                  }
-              }
-
-              private fun startConnectionLoop(carrier: String, user: String, pass: String) {
-                  if (isRunning.getAndSet(true)) return
-
-                  workerThread = Thread {
-                      val profile = ConfigStorage.getProfile(this, carrier)
-                      if (profile == null) {
-                          broadcastState("DISCONNECTED", "Error en archivo .vcfg")
-                          isRunning.set(false)
-                          return@Thread
-                      }
-
-                      while (isRunning.get()) {
-                          try {
-                              broadcastState("CONNECTING", "Fase 1: Preparando red (${carrier.uppercase()})...")
-                              updateNotification("Inicializando perfil ${carrier.uppercase()}...")
-
-                              val sshParts = profile.ssh.split(":")
-                              val sshHost = sshParts[0]
-                              val sshPort = if (sshParts.size > 1) sshParts[1].toInt() else 22
-
-                              val jsch = JSch()
-                              val session = jsch.getSession(user, sshHost, sshPort)
-                              session.setPassword(pass)
-
-                              val config = Properties()
-                              config["StrictHostKeyChecking"] = "no"
-                              config["PreferredAuthentications"] = "password,keyboard-interactive"
-                              session.setConfig(config)
-
-                              if (profile.proxy.isNotEmpty()) {
-                                  session.setProxy(CustomHeaderProxy(profile.proxy, profile.customHeader))
-                              }
-
-                              broadcastState("CONNECTING", "Fase 2: Autenticando usuario $user...")
-                              updateNotification("Verificando usuario $user...")
-                              session.serverAliveInterval = 10000
-                              session.serverAliveCountMax = 3
-                              session.connect(15000)
-                              sshSession = session
-
-                              if (vpnInterface == null) {
-                                  val builder = Builder()
-                                      .setSession("MV Conexion - ${carrier.uppercase()}")
-                                      .setMtu(1400)
-                                      .addAddress("10.8.0.2", 24)
-                                      .addDnsServer("8.8.8.8")
-                                      .addDnsServer("1.1.1.1")
-                                      .addRoute("0.0.0.0", 0)
-                                      .addDisallowedApplication(packageName)
-
-                                  vpnInterface = builder.establish()
-                              }
-
-                              broadcastState("CONNECTED", "Conectado (${carrier.uppercase()})")
-                              updateNotification("Conectado - ${carrier.uppercase()} Activo")
-
-                              while (isRunning.get() && session.isConnected) {
-                                  Thread.sleep(2000)
-                              }
-
-                          } catch (e: Exception) {
-                              if (isRunning.get()) {
-                                  broadcastState("CONNECTING", "Reconectando automaticamente...")
-                                  updateNotification("Senal inestable, reconectando...")
-                                  try { Thread.sleep(3000) } catch (_: InterruptedException) {}
-                              }
-                          } finally {
-                              try { sshSession?.disconnect() } catch (_: Exception) {}
-                          }
-                      }
-                      broadcastState("DISCONNECTED", "Desconectado")
-                  }
-                  workerThread?.start()
-              }
-
-              inner class CustomHeaderProxy(
-                  private val proxyAddress: String,
-                  private val rawCustomHeader: String
-              ) : Proxy {
-                  private var socket: Socket? = null
-                  private var ins: InputStream? = null
-                  private var outs: OutputStream? = null
-
-                  override fun connect(socketFactory: SocketFactory?, host: String?, port: Int, timeout: Int) {
-                      val parts = proxyAddress.split(":")
-                      val pHost = parts[0]
-                      val pPort = if (parts.size > 1) parts[1].toInt() else 80
-
-                      socket = Socket()
-                      protect(socket!!)
-                      socket!!.tcpNoDelay = true
-                      socket!!.keepAlive = true
-                      socket!!.connect(InetSocketAddress(pHost, pPort), timeout)
-
-                      ins = socket!!.getInputStream()
-                      outs = socket!!.getOutputStream()
-
-                      if (rawCustomHeader.isNotEmpty()) {
-                          val formatted = rawCustomHeader
-                              .replace("[host_port]", "$host:$port")
-                              .replace("[crlf]", "\\r\\n")
-                              .replace("[lf]", "\\n")
-
-                          val blocks = formatted.split("[split]")
-                          for (block in blocks) {
-                              if (block.isNotEmpty()) {
-                                  outs!!.write(block.toByteArray(Charsets.UTF_8))
-                                  outs!!.flush()
-                                  Thread.sleep(120)
-                              }
-                          }
-                      }
-                  }
-
-                  override fun getInputStream(): InputStream? = ins
-                  override fun getOutputStream(): OutputStream? = outs
-                  override fun getSocket(): Socket? = socket
-                  override fun close() {
-                      try { socket?.close() } catch (_: Exception) {}
-                  }
-              }
-
-              private fun stopTunnel() {
-                  isRunning.set(false)
-                  workerThread?.interrupt()
-                  try { sshSession?.disconnect() } catch (_: Exception) {}
-                  try { vpnInterface?.close() } catch (_: Exception) {}
-                  vpnInterface = null
-                  if (wakeLock?.isHeld == true) {
-                      wakeLock?.release()
-                  }
-                  wakeLock = null
-                  stopForeground(true)
-                  broadcastState("DISCONNECTED", "Desconectado")
-              }
-
-              private fun broadcastState(state: String, detail: String) {
-                  val intent = Intent("VPN_STATE_UPDATE").apply {
-                      setPackage(packageName)
-                      putExtra("STATE", state)
-                      putExtra("DETAIL", detail)
-                  }
-                  sendBroadcast(intent)
-              }
-
-              private fun updateNotification(text: String) {
-                  val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                  nm.notify(1, buildNotification(text))
-              }
-
-              private fun buildNotification(text: String): Notification {
-                  val channelId = "vpn_persistent_channel"
-                  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                      val channel = NotificationChannel(
-                          channelId,
-                          "Estado de Conexion VPN",
-                          NotificationManager.IMPORTANCE_LOW
-                      )
-                      val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                      nm.createNotificationChannel(channel)
-                  }
-
-                  val pendingIntent = PendingIntent.getActivity(
-                      this, 0, Intent(this, MainActivity::class.java),
-                      PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                          android:orientation="vertical"
+                          android:padding="24dp"
+                          android:gravity="center_horizontal">
+
+                          <TextView
+                              android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              android:text="CONEXION PRIVADA"
+                              android:textColor="#38BDF8"
+                              android:textSize="22sp"
+                              android:textStyle="bold"
+                              android:layout_marginTop="16dp" />
+
+                          <TextView
+                              android:id="@+id/tvConfigStatus"
+                              android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              android:text="Sin archivo de configuracion cargado"
+                              android:textColor="#94A3B8"
+                              android:textSize="13sp"
+                              android:layout_marginTop="6dp"
+                              android:layout_marginBottom="16dp" />
+
+                          <com.google.android.material.button.MaterialButton
+                              android:id="@+id/btnImportConfig"
+                              style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                              android:layout_width="match_parent"
+                              android:layout_height="52dp"
+                              android:text="CARGAR ARCHIVO (.VCFG)"
+                              android:textColor="#38BDF8"
+                              app:strokeColor="#38BDF8"
+                              app:cornerRadius="10dp" />
+
+                          <TextView
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:text="1. Selecciona tu perfil:"
+                              android:textColor="#E2E8F0"
+                              android:textSize="14sp"
+                              android:layout_marginTop="24dp"
+                              android:layout_marginBottom="8dp" />
+
+                          <RadioGroup
+                              android:id="@+id/rgCarrier"
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:orientation="horizontal"
+                              android:weightSum="2">
+
+                              <RadioButton
+                                  android:id="@+id/rbPersonal"
+                                  android:layout_width="0dp"
+                                  android:layout_height="50dp"
+                                  android:layout_weight="1"
+                                  android:checked="true"
+                                  android:text="PERSONAL"
+                                  android:textColor="#FFFFFF"
+                                  android:textStyle="bold"
+                                  android:buttonTint="#38BDF8"
+                                  android:background="#1E293B"
+                                  android:padding="10dp"
+                                  android:layout_marginEnd="6dp" />
+
+                              <RadioButton
+                                  android:id="@+id/rbClaro"
+                                  android:layout_width="0dp"
+                                  android:layout_height="50dp"
+                                  android:layout_weight="1"
+                                  android:text="CLARO"
+                                  android:textColor="#FFFFFF"
+                                  android:textStyle="bold"
+                                  android:buttonTint="#EF4444"
+                                  android:background="#1E293B"
+                                  android:padding="10dp"
+                                  android:layout_marginStart="6dp" />
+                          </RadioGroup>
+
+                          <TextView
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:text="2. Ingresa tu cuenta:"
+                              android:textColor="#E2E8F0"
+                              android:textSize="14sp"
+                              android:layout_marginTop="24dp"
+                              android:layout_marginBottom="8dp" />
+
+                          <com.google.android.material.textfield.TextInputLayout
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:hint="Usuario"
+                              app:boxBackgroundColor="#1E293B"
+                              app:boxBackgroundMode="filled"
+                              app:hintTextColor="#38BDF8"
+                              android:textColorHint="#94A3B8">
+
+                              <com.google.android.material.textfield.TextInputEditText
+                                  android:id="@+id/etUsername"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
+                                  android:inputType="textNoSuggestions"
+                                  android:textColor="#FFFFFF" />
+                          </com.google.android.material.textfield.TextInputLayout>
+
+                          <com.google.android.material.textfield.TextInputLayout
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:layout_marginTop="12dp"
+                              android:hint="Contrasena"
+                              app:boxBackgroundColor="#1E293B"
+                              app:boxBackgroundMode="filled"
+                              app:endIconMode="password_toggle"
+                              app:endIconTint="#94A3B8"
+                              app:hintTextColor="#38BDF8"
+                              android:textColorHint="#94A3B8">
+
+                              <com.google.android.material.textfield.TextInputEditText
+                                  android:id="@+id/etPassword"
+                                  android:layout_width="match_parent"
+                                  android:layout_height="wrap_content"
+                                  android:inputType="textPassword"
+                                  android:textColor="#FFFFFF" />
+                          </com.google.android.material.textfield.TextInputLayout>
+
+                          <CheckBox
+                              android:id="@+id/cbRemember"
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:layout_marginTop="8dp"
+                              android:checked="true"
+                              android:text="Guardar usuario y contrasena"
+                              android:textColor="#CBD5E1"
+                              android:buttonTint="#38BDF8" />
+
+                          <com.google.android.material.button.MaterialButton
+                              android:id="@+id/btnConnect"
+                              android:layout_width="match_parent"
+                              android:layout_height="64dp"
+                              android:layout_marginTop="24dp"
+                              android:text="CONECTAR"
+                              android:textSize="18sp"
+                              android:textStyle="bold"
+                              app:backgroundTint="#10B981"
+                              app:cornerRadius="14dp" />
+
+                          <TextView
+                              android:id="@+id/tvConnectionState"
+                              android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              android:layout_marginTop="20dp"
+                              android:text="Estado: Desconectado"
+                              android:textColor="#94A3B8"
+                              android:textSize="15sp"
+                              android:textStyle="bold" />
+
+                      </LinearLayout>
+                  </ScrollView>
+              """,
+              "app/src/main/java/com/mativaldez/vpnclient/ConfigStorage.kt": """
+                  package com.mativaldez.vpnclient
+
+                  import android.content.Context
+                  import android.net.Uri
+                  import android.util.Base64
+                  import androidx.security.crypto.EncryptedSharedPreferences
+                  import androidx.security.crypto.MasterKey
+                  import org.json.JSONObject
+                  import java.io.BufferedReader
+                  import java.io.InputStreamReader
+                  import javax.crypto.Cipher
+                  import javax.crypto.spec.IvParameterSpec
+                  import javax.crypto.spec.SecretKeySpec
+
+                  data class CarrierProfile(
+                      val proxy: String,
+                      val ssh: String,
+                      val customHeader: String
                   )
 
-                  return NotificationCompat.Builder(this, channelId)
-                      .setContentTitle("MV Conexion Segura")
-                      .setContentText(text)
-                      .setSmallIcon(android.R.drawable.ic_lock_lock)
-                      .setContentIntent(pendingIntent)
-                      .setOngoing(true)
-                      .build()
-              }
+                  object ConfigStorage {
+                      private const val SECRET_KEY = "MatiValdezVpnKey2026Segura123456"
+                      private const val INIT_VECTOR = "VectorInicial123"
 
-              override fun onDestroy() {
-                  stopTunnel()
-                  super.onDestroy()
-              }
-          }
-          """
+                      private fun getPrefs(context: Context) = EncryptedSharedPreferences.create(
+                          context,
+                          "vpn_secure_prefs",
+                          MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
+                          EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                          EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+                      )
+
+                      fun importAndSaveConfig(context: Context, uri: Uri): Boolean {
+                          return try {
+                              val inputStream = context.contentResolver.openInputStream(uri) ?: return false
+                              val encryptedBase64 = BufferedReader(InputStreamReader(inputStream)).use { it.readText().trim() }
+                              val decryptedJson = decryptAes(encryptedBase64)
+
+                              val obj = JSONObject(decryptedJson)
+                              if (!obj.has("personal") || !obj.has("claro")) return false
+
+                              getPrefs(context).edit().putString("raw_config_json", decryptedJson).apply()
+                              true
+                          } catch (e: Exception) {
+                              false
+                          }
+                      }
+
+                      fun hasConfigLoaded(context: Context): Boolean {
+                          return !getPrefs(context).getString("raw_config_json", null).isNullOrEmpty()
+                      }
+
+                      fun getProfile(context: Context, carrierKey: String): CarrierProfile? {
+                          val rawJson = getPrefs(context).getString("raw_config_json", null) ?: return null
+                          return try {
+                              val carrierObj = JSONObject(rawJson).getJSONObject(carrierKey)
+                              CarrierProfile(
+                                  proxy = carrierObj.optString("proxy", ""),
+                                  ssh = carrierObj.optString("ssh", ""),
+                                  customHeader = carrierObj.optString("customHeader", "")
+                              )
+                          } catch (e: Exception) {
+                              null
+                          }
+                      }
+
+                      fun saveCredentials(context: Context, user: String, pass: String, carrier: String, remember: Boolean) {
+                          val editor = getPrefs(context).edit()
+                          editor.putString("selected_carrier", carrier)
+                          editor.putBoolean("remember", remember)
+                          if (remember) {
+                              editor.putString("username", user)
+                              editor.putString("password", pass)
+                          } else {
+                              editor.remove("username")
+                              editor.remove("password")
+                          }
+                          editor.apply()
+                      }
+
+                      fun getSavedUsername(context: Context): String = getPrefs(context).getString("username", "") ?: ""
+                      fun getSavedPassword(context: Context): String = getPrefs(context).getString("password", "") ?: ""
+                      fun getSavedCarrier(context: Context): String = getPrefs(context).getString("selected_carrier", "personal") ?: "personal"
+                      fun isRememberEnabled(context: Context): Boolean = getPrefs(context).getBoolean("remember", true)
+
+                      private fun decryptAes(encryptedBase64: String): String {
+                          val iv = IvParameterSpec(INIT_VECTOR.toByteArray(Charsets.UTF_8))
+                          val keySpec = SecretKeySpec(SECRET_KEY.toByteArray(Charsets.UTF_8), "AES")
+                          val cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING")
+                          cipher.init(Cipher.DECRYPT_MODE, keySpec, iv)
+                          val decoded = Base64.decode(encryptedBase64, Base64.DEFAULT)
+                          return String(cipher.doFinal(decoded), Charsets.UTF_8)
+                      }
+                  }
+              """,
+              "app/src/main/java/com/mativaldez/vpnclient/MainActivity.kt": """
+                  package com.mativaldez.vpnclient
+
+                  import android.annotation.SuppressLint
+                  import android.content.BroadcastReceiver
+                  import android.content.Context
+                  import android.content.Intent
+                  import android.content.IntentFilter
+                  import android.graphics.Color
+                  import android.net.Uri
+                  import android.net.VpnService
+                  import android.os.Build
+                  import android.os.Bundle
+                  import android.os.PowerManager
+                  import android.provider.Settings
+                  import android.widget.*
+                  import androidx.activity.result.contract.ActivityResultContracts
+                  import androidx.appcompat.app.AppCompatActivity
+                  import com.google.android.material.button.MaterialButton
+                  import com.google.android.material.textfield.TextInputEditText
+
+                  class MainActivity : AppCompatActivity() {
+
+                      private lateinit var tvConfigStatus: TextView
+                      private lateinit var tvConnectionState: TextView
+                      private lateinit var btnConnect: MaterialButton
+                      private lateinit var etUsername: TextInputEditText
+                      private lateinit var etPassword: TextInputEditText
+                      private lateinit var cbRemember: CheckBox
+                      private lateinit var rgCarrier: RadioGroup
+                      private var isConnected = false
+
+                      private val filePickerLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                          if (uri != null) {
+                              val ok = ConfigStorage.importAndSaveConfig(this, uri)
+                              if (ok) {
+                                  updateConfigLabel()
+                                  Toast.makeText(this, "Configuracion cargada con exito", Toast.LENGTH_SHORT).show()
+                              } else {
+                                  Toast.makeText(this, "Archivo invalido o danado", Toast.LENGTH_LONG).show()
+                              }
+                          }
+                      }
+
+                      private val vpnPermissionLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                          if (result.resultCode == RESULT_OK) {
+                              startTunnelService()
+                          } else {
+                              Toast.makeText(this, "Permiso VPN necesario para conectar", Toast.LENGTH_SHORT).show()
+                          }
+                      }
+
+                      private val statusReceiver = object : BroadcastReceiver() {
+                          override fun onReceive(context: Context?, intent: Intent?) {
+                              val state = intent?.getStringExtra("STATE") ?: return
+                              val detail = intent.getStringExtra("DETAIL") ?: ""
+                              tvConnectionState.text = "Estado: $detail"
+
+                              when (state) {
+                                  "CONNECTED" -> {
+                                      isConnected = true
+                                      btnConnect.text = "DESCONECTAR"
+                                      btnConnect.setBackgroundColor(Color.parseColor("#EF4444"))
+                                      tvConnectionState.setTextColor(Color.parseColor("#10B981"))
+                                  }
+                                  "CONNECTING" -> {
+                                      btnConnect.text = "CANCELAR"
+                                      btnConnect.setBackgroundColor(Color.parseColor("#F59E0B"))
+                                      tvConnectionState.setTextColor(Color.parseColor("#F59E0B"))
+                                  }
+                                  "DISCONNECTED" -> {
+                                      isConnected = false
+                                      btnConnect.text = "CONECTAR"
+                                      btnConnect.setBackgroundColor(Color.parseColor("#10B981"))
+                                      tvConnectionState.setTextColor(Color.parseColor("#94A3B8"))
+                                  }
+                              }
+                          }
+                      }
+
+                      @SuppressLint("BatteryLife")
+                      override fun onCreate(savedInstanceState: Bundle?) {
+                          super.onCreate(savedInstanceState)
+                          setContentView(R.layout.activity_main)
+
+                          tvConfigStatus = findViewById(R.id.tvConfigStatus)
+                          tvConnectionState = findViewById(R.id.tvConnectionState)
+                          btnConnect = findViewById(R.id.btnConnect)
+                          etUsername = findViewById(R.id.etUsername)
+                          etPassword = findViewById(R.id.etPassword)
+                          cbRemember = findViewById(R.id.cbRemember)
+                          rgCarrier = findViewById(R.id.rgCarrier)
+
+                          val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+                          if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                              val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                                  data = Uri.parse("package:$packageName")
+                              }
+                              startActivity(intent)
+                          }
+
+                          etUsername.setText(ConfigStorage.getSavedUsername(this))
+                          etPassword.setText(ConfigStorage.getSavedPassword(this))
+                          cbRemember.isChecked = ConfigStorage.isRememberEnabled(this)
+                          if (ConfigStorage.getSavedCarrier(this) == "claro") {
+                              rgCarrier.check(R.id.rbClaro)
+                          } else {
+                              rgCarrier.check(R.id.rbPersonal)
+                          }
+                          updateConfigLabel()
+
+                          findViewById<MaterialButton>(R.id.btnImportConfig).setOnClickListener {
+                              filePickerLauncher.launch("*/*")
+                          }
+
+                          btnConnect.setOnClickListener {
+                              if (isConnected) {
+                                  stopTunnelService()
+                              } else {
+                                  validateAndConnect()
+                              }
+                          }
+                      }
+
+                      private fun updateConfigLabel() {
+                          if (ConfigStorage.hasConfigLoaded(this)) {
+                              tvConfigStatus.text = "Perfiles Personal y Claro listos"
+                              tvConfigStatus.setTextColor(Color.parseColor("#10B981"))
+                          } else {
+                              tvConfigStatus.text = "Sin archivo de configuracion (.vcfg)"
+                              tvConfigStatus.setTextColor(Color.parseColor("#F59E0B"))
+                          }
+                      }
+
+                      private fun validateAndConnect() {
+                          if (!ConfigStorage.hasConfigLoaded(this)) {
+                              Toast.makeText(this, "Primero carga el archivo .vcfg", Toast.LENGTH_LONG).show()
+                              return
+                          }
+                          val user = etUsername.text?.toString()?.trim() ?: ""
+                          val pass = etPassword.text?.toString()?.trim() ?: ""
+                          if (user.isEmpty() || pass.isEmpty()) {
+                              Toast.makeText(this, "Ingresa tu usuario y contrasena", Toast.LENGTH_SHORT).show()
+                              return
+                          }
+
+                          val selectedCarrier = if (rgCarrier.checkedRadioButtonId == R.id.rbClaro) "claro" else "personal"
+                          ConfigStorage.saveCredentials(this, user, pass, selectedCarrier, cbRemember.isChecked)
+
+                          val vpnIntent = VpnService.prepare(this)
+                          if (vpnIntent != null) {
+                              vpnPermissionLauncher.launch(vpnIntent)
+                          } else {
+                              startTunnelService()
+                          }
+                      }
+
+                      private fun startTunnelService() {
+                          val selectedCarrier = if (rgCarrier.checkedRadioButtonId == R.id.rbClaro) "claro" else "personal"
+                          val intent = Intent(this, TunnelVpnService::class.java).apply {
+                              action = "ACTION_CONNECT"
+                              putExtra("CARRIER", selectedCarrier)
+                              putExtra("USER", etUsername.text.toString().trim())
+                              putExtra("PASS", etPassword.text.toString().trim())
+                          }
+                          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                              startForegroundService(intent)
+                          } else {
+                              startService(intent)
+                          }
+                      }
+
+                      private fun stopTunnelService() {
+                          val intent = Intent(this, TunnelVpnService::class.java).apply {
+                              action = "ACTION_DISCONNECT"
+                          }
+                          startService(intent)
+                      }
+
+                      override fun onResume() {
+                          super.onResume()
+                          val filter = IntentFilter("VPN_STATE_UPDATE")
+                          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                              registerReceiver(statusReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+                          } else {
+                              registerReceiver(statusReceiver, filter)
+                          }
+                      }
+
+                      override fun onPause() {
+                          super.onPause()
+                          unregisterReceiver(statusReceiver)
+                      }
+                  }
+              """,
+              "app/src/main/java/com/mativaldez/vpnclient/TunnelVpnService.kt": """
+                  package com.mativaldez.vpnclient
+
+                  import android.app.Notification
+                  import android.app.NotificationChannel
+                  import android.app.NotificationManager
+                  import android.app.PendingIntent
+                  import android.content.Context
+                  import android.content.Intent
+                  import android.net.VpnService
+                  import android.os.Build
+                  import android.os.ParcelFileDescriptor
+                  import android.os.PowerManager
+                  import androidx.core.app.NotificationCompat
+                  import com.jcraft.jsch.JSch
+                  import com.jcraft.jsch.Proxy
+                  import com.jcraft.jsch.Session
+                  import com.jcraft.jsch.SocketFactory
+                  import java.io.InputStream
+                  import java.io.OutputStream
+                  import java.net.InetSocketAddress
+                  import java.net.Socket
+                  import java.util.Properties
+                  import java.util.concurrent.atomic.AtomicBoolean
+
+                  class TunnelVpnService : VpnService() {
+
+                      private var vpnInterface: ParcelFileDescriptor? = null
+                      private var sshSession: Session? = null
+                      private var wakeLock: PowerManager.WakeLock? = null
+                      private val isRunning = AtomicBoolean(false)
+                      private var workerThread: Thread? = null
+
+                      override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+                          when (intent?.action) {
+                              "ACTION_CONNECT" -> {
+                                  val carrier = intent.getStringExtra("CARRIER") ?: "personal"
+                                  val user = intent.getStringExtra("USER") ?: ""
+                                  val pass = intent.getStringExtra("PASS") ?: ""
+                                  startForeground(1, buildNotification("Conectando a ${carrier.uppercase()}..."))
+                                  acquireWakeLock()
+                                  startConnectionLoop(carrier, user, pass)
+                              }
+                              "ACTION_DISCONNECT" -> {
+                                  stopTunnel()
+                                  stopSelf()
+                              }
+                          }
+                          return START_STICKY
+                      }
+
+                      private fun acquireWakeLock() {
+                          if (wakeLock == null) {
+                              val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+                              wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MVVpn::TunnelWakeLock")
+                              wakeLock?.acquire()
+                          }
+                      }
+
+                      private fun startConnectionLoop(carrier: String, user: String, pass: String) {
+                          if (isRunning.getAndSet(true)) return
+
+                          workerThread = Thread {
+                              val profile = ConfigStorage.getProfile(this, carrier)
+                              if (profile == null) {
+                                  broadcastState("DISCONNECTED", "Error en archivo .vcfg")
+                                  isRunning.set(false)
+                                  return@Thread
+                              }
+
+                              while (isRunning.get()) {
+                                  try {
+                                      broadcastState("CONNECTING", "Fase 1: Preparando red (${carrier.uppercase()})...")
+                                      updateNotification("Inicializando perfil ${carrier.uppercase()}...")
+
+                                      val sshParts = profile.ssh.split(":")
+                                      val sshHost = sshParts[0]
+                                      val sshPort = if (sshParts.size > 1) sshParts[1].toInt() else 22
+
+                                      val jsch = JSch()
+                                      val session = jsch.getSession(user, sshHost, sshPort)
+                                      session.setPassword(pass)
+
+                                      val config = Properties()
+                                      config["StrictHostKeyChecking"] = "no"
+                                      config["PreferredAuthentications"] = "password,keyboard-interactive"
+                                      session.setConfig(config)
+
+                                      if (profile.proxy.isNotEmpty()) {
+                                          session.setProxy(CustomHeaderProxy(profile.proxy, profile.customHeader))
+                                      }
+
+                                      broadcastState("CONNECTING", "Fase 2: Autenticando usuario $user...")
+                                      updateNotification("Verificando usuario $user...")
+                                      session.serverAliveInterval = 10000
+                                      session.serverAliveCountMax = 3
+                                      session.connect(15000)
+                                      sshSession = session
+
+                                      if (vpnInterface == null) {
+                                          val builder = Builder()
+                                              .setSession("MV Conexion - ${carrier.uppercase()}")
+                                              .setMtu(1400)
+                                              .addAddress("10.8.0.2", 24)
+                                              .addDnsServer("8.8.8.8")
+                                              .addDnsServer("1.1.1.1")
+                                              .addRoute("0.0.0.0", 0)
+                                              .addDisallowedApplication(packageName)
+
+                                          vpnInterface = builder.establish()
+                                      }
+
+                                      broadcastState("CONNECTED", "Conectado (${carrier.uppercase()})")
+                                      updateNotification("Conectado - ${carrier.uppercase()} Activo")
+
+                                      while (isRunning.get() && session.isConnected) {
+                                          Thread.sleep(2000)
+                                      }
+
+                                  } catch (e: Exception) {
+                                      if (isRunning.get()) {
+                                          broadcastState("CONNECTING", "Reconectando automaticamente...")
+                                          updateNotification("Senal inestable, reconectando...")
+                                          try { Thread.sleep(3000) } catch (_: InterruptedException) {}
+                                      }
+                                  } finally {
+                                      try { sshSession?.disconnect() } catch (_: Exception) {}
+                                  }
+                              }
+                              broadcastState("DISCONNECTED", "Desconectado")
+                          }
+                          workerThread?.start()
+                      }
+
+                      inner class CustomHeaderProxy(
+                          private val proxyAddress: String,
+                          private val rawCustomHeader: String
+                      ) : Proxy {
+                          private var socket: Socket? = null
+                          private var ins: InputStream? = null
+                          private var outs: OutputStream? = null
+
+                          override fun connect(socketFactory: SocketFactory?, host: String?, port: Int, timeout: Int) {
+                              val parts = proxyAddress.split(":")
+                              val pHost = parts[0]
+                              val pPort = if (parts.size > 1) parts[1].toInt() else 80
+
+                              socket = Socket()
+                              protect(socket!!)
+                              socket!!.tcpNoDelay = true
+                              socket!!.keepAlive = true
+                              socket!!.connect(InetSocketAddress(pHost, pPort), timeout)
+
+                              ins = socket!!.getInputStream()
+                              outs = socket!!.getOutputStream()
+
+                              if (rawCustomHeader.isNotEmpty()) {
+                                  val formatted = rawCustomHeader
+                                      .replace("[host_port]", "$host:$port")
+                                      .replace("[crlf]", "\\r\\n")
+                                      .replace("[lf]", "\\n")
+
+                                  val blocks = formatted.split("[split]")
+                                  for (block in blocks) {
+                                      if (block.isNotEmpty()) {
+                                          outs!!.write(block.toByteArray(Charsets.UTF_8))
+                                          outs!!.flush()
+                                          Thread.sleep(120)
+                                      }
+                                  }
+                              }
+                          }
+
+                          override fun getInputStream(): InputStream? = ins
+                          override fun getOutputStream(): OutputStream? = outs
+                          override fun getSocket(): Socket? = socket
+                          override fun close() {
+                              try { socket?.close() } catch (_: Exception) {}
+                          }
+                      }
+
+                      private fun stopTunnel() {
+                          isRunning.set(false)
+                          workerThread?.interrupt()
+                          try { sshSession?.disconnect() } catch (_: Exception) {}
+                          try { vpnInterface?.close() } catch (_: Exception) {}
+                          vpnInterface = null
+                          if (wakeLock?.isHeld == true) {
+                              wakeLock?.release()
+                          }
+                          wakeLock = null
+                          stopForeground(true)
+                          broadcastState("DISCONNECTED", "Desconectado")
+                      }
+
+                      private fun broadcastState(state: String, detail: String) {
+                          val intent = Intent("VPN_STATE_UPDATE").apply {
+                              setPackage(packageName)
+                              putExtra("STATE", state)
+                              putExtra("DETAIL", detail)
+                          }
+                          sendBroadcast(intent)
+                      }
+
+                      private fun updateNotification(text: String) {
+                          val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                          nm.notify(1, buildNotification(text))
+                      }
+
+                      private fun buildNotification(text: String): Notification {
+                          val channelId = "vpn_persistent_channel"
+                          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                              val channel = NotificationChannel(
+                                  channelId,
+                                  "Estado de Conexion VPN",
+                                  NotificationManager.IMPORTANCE_LOW
+                              )
+                              val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                              nm.createNotificationChannel(channel)
+                          }
+
+                          val pendingIntent = PendingIntent.getActivity(
+                              this, 0, Intent(this, MainActivity::class.java),
+                              PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                          )
+
+                          return NotificationCompat.Builder(this, channelId)
+                              .setContentTitle("MV Conexion Segura")
+                              .setContentText(text)
+                              .setSmallIcon(android.R.drawable.ic_lock_lock)
+                              .setContentIntent(pendingIntent)
+                              .setOngoing(true)
+                              .build()
+                      }
+
+                      override fun onDestroy() {
+                          stopTunnel()
+                          super.onDestroy()
+                      }
+                  }
+              """
           }
 
           for path, content in files.items():
-              lines = [line[10:] if line.startswith("          ") else line for line in content.splitlines()]
               with open(path, "w", encoding="utf-8") as f:
-                  f.write("\n".join(lines))
+                  f.write(textwrap.dedent(content).strip() + "\n")
 
       - name: Configurar Java JDK 17
         uses: actions/setup-java@v4
